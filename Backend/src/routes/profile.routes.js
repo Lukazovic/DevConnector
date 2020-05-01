@@ -99,4 +99,37 @@ router.post(
   }
 );
 
+// @route  GET api/profiles
+// @desc   Create all profiles
+// @acess  Public
+router.get("/", async (req, res) => {
+  try {
+    const profiles = await Profile.find().populate("owner", ["name", "avatar"]);
+    res.json(profiles);
+  } catch (err) {
+    res.status(500).send("Server Error");
+  }
+});
+
+// @route  GET api/profiles/user/:user_id
+// @desc   Create profile by user ID
+// @acess  Public
+router.get("/user/:user_id", async (req, res) => {
+  try {
+    const profile = await Profile.findOne({
+      owner: req.params.user_id,
+    }).populate("owner", ["name", "avatar"]);
+
+    if (!profile) {
+      return res.status(400).json({ msg: "Profile not found" });
+    }
+    res.json(profile);
+  } catch (err) {
+    if (err.name === "CastError") {
+      return res.status(400).json({ msg: "Profile not found" });
+    }
+    res.status(500).send("Server Error");
+  }
+});
+
 module.exports = router;
