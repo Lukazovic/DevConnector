@@ -1,13 +1,16 @@
 const express = require("express");
 const connectDB = require("./connection/db");
 
+const app = express();
+connectDB();
+
+// init Middleware
+app.use(express.json({ extended: false }));
+
 const authRoute = require("./routes/auth.routes");
 const userRoute = require("./routes/users.routes");
 const profileRoute = require("./routes/profile.routes");
 const postsRoute = require("./routes/posts.routes");
-
-const app = express();
-connectDB();
 
 app.use("/api/auth", authRoute);
 app.use("/api/users", userRoute);
