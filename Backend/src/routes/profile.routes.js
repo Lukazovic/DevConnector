@@ -1,5 +1,7 @@
 const express = require("express");
 const router = express.Router();
+const axios = require("axios");
+const config = require("../../config/default.json");
 const auth = require("../middlewares/auth");
 const { check, validationResult } = require("express-validator");
 
@@ -211,6 +213,10 @@ router.delete("/experience/:experience_id", auth, async (req, res) => {
       .map(item => item.id)
       .indexOf(req.params.experience_id);
 
+    if (removeIndex === -1) {
+      return res.status(400).json({ msg: "Experience id not valid" });
+    }
+
     profile.experience.splice(removeIndex, 1);
 
     await profile.save();
@@ -218,6 +224,106 @@ router.delete("/experience/:experience_id", auth, async (req, res) => {
     res.json(profile);
   } catch (err) {
     res.status(500).send("Server Error");
+  }
+});
+
+// @route  PUT api/profiles/education
+// @desc   Add profile education
+// @acess  Private
+router.put(
+  "/education",
+  [
+    auth,
+    check("school", "School is required").not().isEmpty(),
+    check("degree", "Degree is required").not().isEmpty(),
+    check("fieldofstudy", "Field of study is required").not().isEmpty(),
+    check("from", "From date is required").not().isEmpty(),
+  ],
+  async (req, res) => {
+    const erros = validationResult(req);
+    if (!erros.isEmpty()) {
+      return res.status(400).json({ errors: erros.array() });
+    }
+
+    const {
+      school,
+      degree,
+      fieldofstudy,
+      from,
+      to,
+      current,
+      description,
+    } = req.body;
+
+    const newEducation = {
+      school,
+      degree,
+      fieldofstudy,
+      from,
+      to,
+      current,
+      description,
+    };
+
+    try {
+      const profile = await Profile.findOne({ owner: req.user.id });
+
+      profile.education.unshift(newEducation);
+
+      await profile.save();
+
+      res.json(profile);
+    } catch (err) {
+      res.status(500).send("Server Error");
+    }
+  }
+);
+
+// @route  DELETE api/profiles/education/:education_id
+// @desc   Delete education from a profile
+// @acess  Private
+router.delete("/education/:education_id", auth, async (req, res) => {
+  try {
+    const profile = await Profile.findOne({ owner: req.user.id });
+
+    const removeIndex = profile.education
+      .map(item => item.id)
+      .indexOf(req.params.education_id);
+
+    if (removeIndex === -1) {
+      return res.status(400).json({ msg: "Education id not valid" });
+    }
+
+    profile.education.splice(removeIndex, 1);
+
+    await profile.save();
+
+    res.json(profile);
+  } catch (err) {
+    res.status(500).send("Server Error");
+  }
+});
+
+// @route  GET api/profiles/github/:username
+// @desc   Get user respositories from a Github user
+// @acess  Public
+router.get("/github/:username", async (req, res) => {
+  try {
+    const uri = `https://api.github.com/users/${req.params.username}/repos?per_page=5&sort=created:asc`;
+
+    const githubResponse = await axios.get(uri, {
+      headers: {
+        "user-agent": "node.js",
+      },
+      client_id: config.githubClientId,
+      client_secret: config.githubSecret,
+    });
+    res.json(githubResponse.data);
+  } catch (err) {
+    if (err.response.status === 404) {
+      return res.status(404).json({ msg: "No Github profile was Found" });
+    }
+    res.status(500).send("Server error");
   }
 });
 
