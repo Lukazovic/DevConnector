@@ -14,7 +14,7 @@ const postsRoute = require("./routes/posts.routes");
 
 app.use("/api/auth", authRoute);
 app.use("/api/users", userRoute);
-app.use("/api/profile", profileRoute);
+app.use("/api/profiles", profileRoute);
 app.use("/api/posts", postsRoute);
 
 const PORT = (process.env.PORT = 3333);
