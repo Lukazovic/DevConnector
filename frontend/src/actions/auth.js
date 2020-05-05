@@ -1,6 +1,32 @@
 import api from "../services/api";
 import { setAlert } from "./alert";
-import { REGISTER_SUCCESS, REGISTER_FAIL } from "./types";
+import setAuthToken from "../utils/setAuthToken";
+import {
+  REGISTER_SUCCESS,
+  REGISTER_FAIL,
+  USER_LOADED,
+  AUTH_ERROR,
+} from "./types";
+
+export const loadUser = () => async dispatch => {
+  if (localStorage.token) {
+    setAuthToken(localStorage.token);
+  }
+
+  try {
+    const res = await api.get("/api/auth");
+    console.log(res);
+    dispatch({
+      type: USER_LOADED,
+      payload: res.data,
+    });
+  } catch (err) {
+    console.log(err);
+    dispatch({
+      type: AUTH_ERROR,
+    });
+  }
+};
 
 export const register = ({ name, email, password }) => async dispatch => {
   const config = {
