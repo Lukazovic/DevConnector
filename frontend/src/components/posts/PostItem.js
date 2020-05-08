@@ -1,4 +1,4 @@
-import React, { Fragment } from "react";
+import React, { Fragment, useEffect } from "react";
 import PropTypes from "prop-types";
 import { Link } from "react-router-dom";
 import Moment from "react-moment";
@@ -38,35 +38,40 @@ const PostItem = ({
         <p className="post-date">
           Posted on <Moment format="YYYY/MM/DD">{date}</Moment>
         </p>
-        <button onClick={handleAddLike} type="button" className="btn btn-light">
-          <i className="fas fa-thumbs-up" />{" "}
-          {likes.length > 0 && <span>{likes.length}</span>}
-        </button>
-        <button
-          onClick={handleRemoveLike}
-          type="button"
-          className="btn btn-light"
-        >
-          <i className="fas fa-thumbs-down" />
-        </button>
         {showActions && (
           <Fragment>
+            <button
+              onClick={handleAddLike}
+              type="button"
+              className="btn btn-light"
+            >
+              <i className="fas fa-thumbs-up" />{" "}
+              {likes.length > 0 && <span>{likes.length}</span>}
+            </button>
+            <button
+              onClick={handleRemoveLike}
+              type="button"
+              className="btn btn-light"
+            >
+              <i className="fas fa-thumbs-down" />
+            </button>
             <Link to={`/posts/${_id}`} className="btn btn-primary">
               Discussion{" "}
               {comments.length > 0 && (
                 <span className="comment-count">{comments.length}</span>
               )}
             </Link>
+
+            {!auth.loading && owner === auth.user._id && (
+              <button
+                onClick={handleDeletePost}
+                type="button"
+                className="btn btn-danger"
+              >
+                <i className="fas fa-times"></i>
+              </button>
+            )}
           </Fragment>
-        )}
-        {!auth.loading && owner === auth.user._id && (
-          <button
-            onClick={handleDeletePost}
-            type="button"
-            className="btn btn-danger"
-          >
-            <i className="fas fa-times"></i>
-          </button>
         )}
       </div>
     </div>
