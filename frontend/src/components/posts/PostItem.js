@@ -11,6 +11,7 @@ const PostItem = ({
   deletePost,
   auth,
   post: { _id, text, name, avatar, owner, likes, comments, date },
+  showActions,
 }) => {
   const handleAddLike = e => {
     addLike(_id);
@@ -48,12 +49,16 @@ const PostItem = ({
         >
           <i className="fas fa-thumbs-down" />
         </button>
-        <Link to={`/post/${_id}`} className="btn btn-primary">
-          Discussion{" "}
-          {comments.length > 0 && (
-            <span className="comment-count">{comments.length}</span>
-          )}
-        </Link>
+        {showActions && (
+          <Fragment>
+            <Link to={`/posts/${_id}`} className="btn btn-primary">
+              Discussion{" "}
+              {comments.length > 0 && (
+                <span className="comment-count">{comments.length}</span>
+              )}
+            </Link>
+          </Fragment>
+        )}
         {!auth.loading && owner === auth.user._id && (
           <button
             onClick={handleDeletePost}
@@ -66,6 +71,10 @@ const PostItem = ({
       </div>
     </div>
   );
+};
+
+PostItem.defaultProps = {
+  showActions: true,
 };
 
 PostItem.propTypes = {
