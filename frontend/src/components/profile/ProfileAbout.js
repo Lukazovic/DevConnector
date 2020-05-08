@@ -13,7 +13,7 @@ const ProfileAbout = ({
     if (firstName.endsWith("s")) return `${firstName}'`;
     return `${firstName}'s`;
   };
-  const formatedName = getFormatedFisrtName();
+  const formatedName = name ? getFormatedFisrtName() : name;
 
   return (
     <div className="profile-about bg-light p-2">
